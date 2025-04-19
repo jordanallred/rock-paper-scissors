@@ -346,6 +346,10 @@
         #heatmapContainer {
             margin-top: 1rem;
             overflow-x: auto;
+            height: 100%;
+            max-height: 650px;
+            display: flex;
+            flex-direction: column;
         }
 
         #heatmapContainer table {
@@ -356,11 +360,23 @@
             box-shadow: var(--shadow-sm);
         }
 
+        #heatmapContainer thead {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
         #heatmapContainer th {
             background-color: var(--neutral-100);
             padding: 0.75rem;
             text-align: left;
             font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        #heatmapContainer tbody {
+            overflow-y: auto;
         }
 
         #heatmapContainer td {
@@ -381,23 +397,6 @@
             padding: 0.5rem;
             border-radius: 0.375rem;
             font-size: 0.875rem;
-        }
-
-        #patternsList ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        #patternsList li {
-            padding: 0.75rem;
-            margin: 0.5rem 0;
-            background-color: var(--neutral-100);
-            border-radius: 0.5rem;
-            transition: transform 0.2s;
-        }
-
-        #patternsList li:hover {
-            transform: translateX(3px);
         }
 
         @media (max-width: 768px) {
@@ -540,14 +539,6 @@
         <h2>Pattern Analysis</h2>
         <div id="heatmapContainer"></div>
     </div>
-
-    <div class="chart-panel">
-        <h2>AI Analysis</h2>
-        <div id="strategyAnalysisContainer">
-            <h3>Detected Patterns</h3>
-            <div id="patternsList"></div>
-        </div>
-    </div>
 </div>
 
 <script>
@@ -600,8 +591,6 @@
 
         document.getElementById('heatmapContainer').innerHTML =
             '<p>Not enough data to display patterns yet.</p>';
-        document.getElementById('patternsList').innerHTML =
-            '<p>Not enough data to analyze patterns yet.</p>';
     }
 
 
@@ -758,50 +747,6 @@
         table.appendChild(tbody);
         container.appendChild(table);
     }
-
-
-    function updateStrategyAnalysis(strategyStats) {
-        const container = document.getElementById('patternsList');
-        container.innerHTML = '';
-
-
-        if (!strategyStats || !strategyStats.patterns || Object.keys(strategyStats.patterns).length === 0) {
-            container.innerHTML = '<p>Not enough data to analyze patterns yet.</p>';
-            return;
-        }
-
-
-        const patternsList = document.createElement('ul');
-        patternsList.style.listStyleType = 'none';
-        patternsList.style.padding = '0';
-
-        Object.entries(strategyStats.patterns).forEach(([pattern, stats]) => {
-            const listItem = document.createElement('li');
-            listItem.style.padding = '8px';
-            listItem.style.margin = '5px 0';
-            listItem.style.backgroundColor = 'rgba(0,0,0,0.05)';
-            listItem.style.borderRadius = '4px';
-
-
-            const colorValue = Math.floor(stats.strength * 255);
-            const confidenceColor = `rgb(${255 - colorValue}, ${colorValue}, 0)`;
-
-            listItem.innerHTML = `
-                    <div style="display:flex; justify-content:space-between;">
-                        <strong>${pattern}</strong>
-                        <span style="color:${confidenceColor}; font-weight:bold;">${(stats.strength * 100).toFixed(1)}%</span>
-                    </div>
-                    <div style="font-size:0.8em; color:#666;">
-                        Observed ${stats.count} time${stats.count !== 1 ? 's' : ''}
-                    </div>
-                `;
-
-            patternsList.appendChild(listItem);
-        });
-
-        container.appendChild(patternsList);
-    }
-
 
     function updateHistory(data) {
         const historyContainer = document.getElementById('historyContainer');
@@ -963,8 +908,6 @@
 
                 document.getElementById('heatmapContainer').innerHTML =
                     '<p>Not enough data to display patterns yet.</p>';
-                document.getElementById('patternsList').innerHTML =
-                    '<p>Not enough data to analyze patterns yet.</p>';
 
                 alert('Game has been reset!');
             })

@@ -1,8 +1,10 @@
+from traceback import print_tb
+
 from flask import Flask, render_template, request, session, jsonify
 import random
 import pickle
 import base64
-from collections import defaultdict
+import numpy as np
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
@@ -22,21 +24,36 @@ COUNTER_TO = {
 }
 
 
-class EnhancedPredictor:
-    def __init__(self, n_values=[2, 3, 4]):
-        """Initialize an enhanced predictor for RPS game.
+class FlexiblePredictor:
+    """A flexible predictor that can use any combination of n-gram lengths."""
+
+    def __init__(self, n_gram_range=(1, 5), markov_weights=None):
+        """Initialize the predictor with configurable n-gram lengths.
 
         Args:
-            n_values (list): Different context lengths to track for prediction.
+            n_gram_range (tuple): The minimum and maximum n-gram lengths to track (inclusive)
+            markov_weights (dict, optional): Custom weights for different n-gram lengths
         """
-        self.n_values = n_values
+        self.min_n, self.max_n = n_gram_range
+        self.n_values = list(range(self.min_n, self.max_n + 1))
+
+        if markov_weights is None:
+            self.markov_weights = {n: 0.5 + (0.1 * n) for n in self.n_values}
+        else:
+            self.markov_weights = markov_weights
+
         self.history = []
-        self.transitions = {n: {} for n in n_values}
+        self.transitions = {n: {} for n in self.n_values}
 
         self.move_counts = {'rock': 0, 'paper': 0, 'scissors': 0}
         self.last_five_moves = []
         self.last_results = []
         self.switching_patterns = {'win': {}, 'lose': {}, 'tie': {}}
+
+        self.metadata = {
+            'total_rounds': 0,
+            'streak': {'type': None, 'count': 0},
+        }
 
     def update(self, move, result=None):
         """Update the model with a new move and result.
@@ -48,10 +65,17 @@ class EnhancedPredictor:
 
         self.history.append(move)
         self.move_counts[move] += 1
+        self.metadata['total_rounds'] += 1
 
         self.last_five_moves.append(move)
         if len(self.last_five_moves) > 5:
             self.last_five_moves.pop(0)
+
+        if result:
+            if self.metadata['streak']['type'] == result:
+                self.metadata['streak']['count'] += 1
+            else:
+                self.metadata['streak'] = {'type': result, 'count': 1}
 
         if result is not None and len(self.history) >= 2:
             prev_move = self.history[-2]
@@ -64,14 +88,28 @@ class EnhancedPredictor:
             self.switching_patterns[result][prev_move][move] += 1
 
         for n in self.n_values:
-            if len(self.history) > n:
+            self._update_ngram(n, move)
 
-                context = tuple(self.history[-(n + 1):-1])
+    def _update_ngram(self, n, move):
+        """Update a specific n-gram transition table.
 
-                if context not in self.transitions[n]:
-                    self.transitions[n][context] = {'rock': 0, 'paper': 0, 'scissors': 0}
+        Args:
+            n (int): The n-gram length
+            move (str): The user's move
+        """
 
-                self.transitions[n][context][move] += 1
+        if len(self.history) <= n:
+            return
+
+        if n == 0:
+            context = ()
+        else:
+            context = tuple(self.history[-(n + 1):-1])
+
+        if context not in self.transitions[n]:
+            self.transitions[n][context] = {'rock': 0, 'paper': 0, 'scissors': 0}
+
+        self.transitions[n][context][move] += 1
 
     def predict(self):
         """Predict the user's next move based on multiple strategies.
@@ -86,7 +124,10 @@ class EnhancedPredictor:
         for n in sorted(self.n_values, reverse=True):
             if len(self.history) >= n:
 
-                context = tuple(self.history[-n:])
+                if n == 0:
+                    context = ()
+                else:
+                    context = tuple(self.history[-n:])
 
                 if context in self.transitions[n]:
                     counts = self.transitions[n][context]
@@ -96,7 +137,7 @@ class EnhancedPredictor:
                         move_probs = {move: count / total for move, count in counts.items()}
                         predicted_move = max(move_probs, key=move_probs.get)
                         confidence = move_probs[predicted_move]
-                        weight = 0.5 + (0.1 * n)
+                        weight = self.markov_weights.get(n, 0.5)
                         strategies.append((predicted_move, confidence, weight, f"N-gram (n={n})"))
 
         if sum(self.move_counts.values()) > 5:
@@ -121,6 +162,14 @@ class EnhancedPredictor:
                     confidence = move_probs[predicted_move]
 
                     strategies.append((predicted_move, confidence, 0.7, f"After {last_result}"))
+
+        if self.metadata['streak']['count'] >= 3:
+            streak_type = self.metadata['streak']['type']
+
+            if streak_type == 'lose' and len(self.history) > 0:
+                last_move = self.history[-1]
+                next_move = self._get_move_not_beaten_by(COUNTER_TO[last_move])
+                strategies.append((next_move, 0.6, 0.5, f"Breaking {streak_type} streak"))
 
         if not strategies:
             return random.choice(CHOICES), 0.0, "Random (first move)"
@@ -152,6 +201,11 @@ class EnhancedPredictor:
 
         return random.choice(CHOICES), 0.0, "Random"
 
+    def _get_move_not_beaten_by(self, move):
+        """Get a move that won't be beaten by the specified move."""
+        options = [m for m in CHOICES if COUNTER_TO[m] != move]
+        return random.choice(options)
+
     def get_counter_move(self):
         """Choose a move that counters the predicted user move.
 
@@ -163,30 +217,34 @@ class EnhancedPredictor:
         predicted_move, confidence, strategy = self.predict()
 
         if confidence < 0.5:
-
             random_factor = (0.5 - confidence) * 2
             if random.random() < random_factor:
                 return random.choice(CHOICES), confidence, "Random (low confidence)"
-        elif confidence > 0.8:
-
-            if random.random() < 0.1:
-                counter_choices = [move for move in CHOICES if move != COUNTER_TO.get(predicted_move)]
-                return random.choice(counter_choices), confidence, "Deception (high confidence)"
 
         return COUNTER_TO.get(predicted_move), confidence, strategy
 
-    def get_transition_heatmap(self):
+    def get_transition_heatmap(self, n=None):
         """Get transition data for visualization.
+
+        Args:
+            n (int, optional): Specific n-gram length to visualize. If None, uses middle value.
 
         Returns:
             dict: Transition counts for heatmap visualization
         """
         result = {}
 
-        middle_n = self.n_values[len(self.n_values) // 2]
+        if n is None:
+            n = self.n_values[len(self.n_values) // 2]
 
-        for context, next_moves in self.transitions[middle_n].items():
-            context_str = " → ".join(context)
+        if n not in self.transitions:
+            return {}
+
+        for context, next_moves in self.transitions[n].items():
+            if len(context) == 0:
+                context_str = "Overall"
+            else:
+                context_str = " → ".join(context)
             result[context_str] = next_moves
 
         return result
@@ -219,13 +277,20 @@ class EnhancedPredictor:
         top_patterns = []
         for n in self.n_values:
             if len(self.history) >= n:
-                context = tuple(self.history[-n:])
+                if n == 0:
+                    context = ()
+                else:
+                    context = tuple(self.history[-n:])
+
                 if context in self.transitions[n]:
                     counts = self.transitions[n][context]
                     total = sum(counts.values())
                     if total > 0:
                         strongest_move = max(counts, key=counts.get)
-                        pattern_str = " → ".join(context) + f" → {strongest_move}"
+                        if n == 0:
+                            pattern_str = f"Overall → {strongest_move}"
+                        else:
+                            pattern_str = " → ".join(context) + f" → {strongest_move}"
                         strength = counts[strongest_move] / total
                         top_patterns.append((pattern_str, strength, total))
 
@@ -234,6 +299,45 @@ class EnhancedPredictor:
             stats["patterns"][pattern] = {"strength": strength, "count": count}
 
         return stats
+
+    def get_markov_analysis(self):
+        """Get detailed analysis of the Markov model.
+
+        Returns:
+            dict: Detailed Markov model statistics
+        """
+        model_stats = {}
+
+        for n in self.n_values:
+            if not self.transitions[n]:
+                continue
+
+            contexts = {}
+            for context, next_moves in self.transitions[n].items():
+                total = sum(next_moves.values())
+                if total > 0:
+
+                    probs = [count / total for count in next_moves.values()]
+
+                    entropy = -sum(p * np.log2(p) if p > 0 else 0 for p in probs)
+
+                    max_prob = max(probs)
+
+                    if len(context) == 0:
+                        context_name = "Overall"
+                    else:
+                        context_name = " → ".join(context)
+
+                    contexts[context_name] = {
+                        "entropy": entropy,
+                        "predictability": 1.0 - (entropy / np.log2(3)),
+                        "max_probability": max_prob,
+                        "observations": total
+                    }
+
+            model_stats[f"n={n}"] = contexts
+
+        return model_stats
 
 
 def serialize_predictor(predictor):
@@ -248,7 +352,7 @@ def deserialize_predictor(serialized_predictor):
     except AttributeError:
 
         print("Creating new predictor due to class mismatch")
-        return EnhancedPredictor()
+        return FlexiblePredictor()
 
 
 @app.route('/')
@@ -256,7 +360,7 @@ def index():
     """Render the game page."""
 
     if 'predictor' not in session:
-        predictor = EnhancedPredictor()
+        predictor = FlexiblePredictor()
         session['predictor'] = serialize_predictor(predictor)
         session['scores'] = {'user': 0, 'ai': 0, 'tie': 0}
         session['rounds'] = []
@@ -315,6 +419,7 @@ def play():
 
         try:
             strategy_stats = predictor.get_strategy_stats()
+            markov_analysis = predictor.get_markov_analysis()
         except AttributeError:
 
             strategy_stats = {
@@ -322,6 +427,7 @@ def play():
                 "strategy": strategy,
                 "patterns": {}
             }
+            markov_analysis = {}
 
         return jsonify({
             'user_move': user_move,
@@ -332,9 +438,11 @@ def play():
             'scores': scores,
             'move_frequencies': predictor.get_move_frequencies(),
             'transitions': predictor.get_transition_heatmap(),
-            'strategy_stats': strategy_stats
+            'strategy_stats': strategy_stats,
+            'markov_analysis': markov_analysis
         })
     except Exception as e:
+        print_tb(e.__traceback__)
         print(f"Error in play route: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
@@ -343,13 +451,12 @@ def play():
 def reset():
     """Reset the game."""
 
-    predictor = EnhancedPredictor()
+    predictor = FlexiblePredictor()
     session['predictor'] = serialize_predictor(predictor)
     session['scores'] = {'user': 0, 'ai': 0, 'tie': 0}
     session['rounds'] = []
 
     return jsonify({'message': 'Game reset successfully'})
 
-
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0")
