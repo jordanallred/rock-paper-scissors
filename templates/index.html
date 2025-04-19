@@ -509,16 +509,21 @@
                 {% if rounds %}
                     {% for round in rounds %}
                         <div class="history-item">
-                            <span>Round {{ loop.index }}: You played {{ round.user_move }}, AI played {{ round.ai_move }}</span>
+                            <span>Round {{ round.round_number }}: You played {{ round.user_move }}, AI played {{ round.ai_move }}</span>
                             <span class="result-{{ round.result }}">
-                                {% if round.result == 'win' %}
-                                    You won!
-                                {% elif round.result == 'lose' %}
-                                    AI won!
-                                {% else %}
-                                    Tie!
-                                {% endif %}
-                            </span>
+                    {% if round.result == 'win' %}
+                        You won!
+                    {% elif round.result == 'lose' %}
+                        AI won!
+                    {% else %}
+                        Tie!
+                    {% endif %}
+                </span>
+                            {% if round.strategy %}
+                                <div style="font-size: 0.8em; color: #666;">
+                                    AI strategy: {{ round.strategy }}
+                                </div>
+                            {% endif %}
                         </div>
                     {% endfor %}
                 {% else %}
@@ -750,11 +755,19 @@
 
     function updateHistory(data) {
         const historyContainer = document.getElementById('historyContainer');
+
+        if (historyContainer.children.length === 1 &&
+            historyContainer.firstChild.textContent.includes('No rounds played yet')) {
+            historyContainer.innerHTML = '';
+        }
+
+        const roundNumber = historyContainer.children.length + 1;
+
         const historyItem = document.createElement('div');
         historyItem.className = 'history-item';
 
         const moveText = document.createElement('span');
-        moveText.textContent = `Round ${historyContainer.children.length + 1}: You played ${data.user_move}, AI played ${data.ai_move} `;
+        moveText.textContent = `Round ${roundNumber}: You played ${data.user_move}, AI played ${data.ai_move} `;
 
         const resultText = document.createElement('span');
         resultText.className = `result-${data.result}`;
@@ -769,7 +782,6 @@
         historyItem.appendChild(moveText);
         historyItem.appendChild(resultText);
 
-
         if (data.strategy) {
             const strategyText = document.createElement('div');
             strategyText.textContent = `AI strategy: ${data.strategy}`;
@@ -778,18 +790,14 @@
             historyItem.appendChild(strategyText);
         }
 
+        historyContainer.appendChild(historyItem);
 
-        if (historyContainer.firstChild) {
-            historyContainer.insertBefore(historyItem, historyContainer.firstChild);
-
-            if (historyContainer.children.length > 10) {
-                historyContainer.removeChild(historyContainer.lastChild);
-            }
-        } else {
-            historyContainer.appendChild(historyItem);
+        while (historyContainer.children.length > 10) {
+            historyContainer.removeChild(historyContainer.firstChild);
         }
-    }
 
+        historyContainer.scrollTop = historyContainer.scrollHeight;
+    }
 
     function playMove(move) {
         const formData = new FormData();

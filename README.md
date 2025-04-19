@@ -1,21 +1,22 @@
-# Rock Paper Scissors AI
+# Rock Paper Scissors
 
-A Flask-based web application that lets users play Rock Paper Scissors against an AI that learns and adapts to their
-playing patterns in real-time.
+A Flask-based web application that lets users play Rock Paper Scissors against an AI that learns from raw data and adapts to playing patterns in real-time, following principles from "The Bitter Lesson" in machine learning.
 
 ![Rock Paper Scissors AI Game](game.png)
 
 ## Features
 
-- **Adaptive AI**: The AI creates a unique model for each user, learning their patterns as they play
-- **Multi-Strategy Prediction**: Uses N-gram sequence analysis and psychological pattern recognition
-- **Real-Time Learning**: AI adapts after each round, getting better at predicting your next move
-- **Interactive Visualizations**:
-    - Move frequency chart showing your pattern tendencies
-    - Transition heatmap revealing your sequential patterns
-    - Pattern strength analysis showing which patterns the AI has detected
-- **Strategy Transparency**: See which prediction strategy the AI is using against you
-- **Session-Based**: Each user gets their own independent model that evolves separately
+- **Pure Pattern-Learning AI**: The AI creates a model for each player, learning solely from observed patterns without human-engineered heuristics
+- **N-gram Pattern Recognition**: Uses variable-length N-gram pattern recognition (up to 7 moves) with automatic weighting
+- **Real-Time Adaptation**: AI continuously refines its predictions as more data becomes available
+- **Visualization Suite**:
+    - Move frequency chart showing distribution of choices
+    - Pattern transition heatmap revealing sequential patterns
+    - Pattern strength analysis showing detected regularities
+    - **NEW: Decision Tree Visualization** showing possible move sequences and probabilities
+- **Minimal Human Input**: AI prioritizes learning from data rather than hard-coded strategies
+- **Confidence-Based Decisions**: Uses randomness only when pattern confidence is below threshold
+- **Session-Based**: Each player gets an independent model that evolves uniquely
 
 ## Installation
 
@@ -29,8 +30,8 @@ playing patterns in real-time.
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/rock-paper-scissors-ai.git
-cd rock-paper-scissors-ai
+git clone https://github.com/jordanallred/rock-paper-scissors.git
+cd rock-paper-scissors
 ```
 
 2. Create a virtual environment:
@@ -43,7 +44,7 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 3. Install the required packages:
 
 ```bash
-pip install flask
+pip install flask numpy
 ```
 
 4. Run the application:
@@ -56,50 +57,50 @@ python app.py
 
 ## How It Works
 
-### AI Prediction Model
+### ML-First Prediction Model
 
-The core of the application is the `EnhancedPredictor` class which uses multiple strategies to predict player behavior:
+The application uses the `ImprovedMLPredictor` class which follows "The Bitter Lesson" principle of letting machine learning discover patterns with minimal human intervention:
 
-1. **Multi-length N-gram Analysis**:
-    - Tracks sequences of different lengths (2, 3, and 4 moves)
-    - Longer sequences get higher weight when they match
-    - Builds transition tables showing the likelihood of each move following each pattern
+1. **Hierarchical N-gram Analysis**:
+    - Tracks sequences of varying lengths (1-7 moves by default)
+    - Weights longer patterns more heavily when sufficient data exists
+    - Builds transition probability tables automatically
 
-2. **Frequency Analysis**:
-    - Tracks overall move frequencies (rock, paper, scissors)
-    - Uses this as a fallback strategy
+2. **Confidence-Based Decision Making**:
+    - Uses randomness only when pattern confidence falls below threshold
+    - No human-engineered heuristics or special-case strategies
+    - Strictly data-driven prediction based on observed patterns
 
-3. **Result-Based Patterns**:
-    - Monitors how players change their moves after wins, losses, or ties
-    - Takes advantage of psychological patterns in human play
+3. **Automatic Pattern Discovery**:
+    - Identifies effective N-gram lengths based on predictive power
+    - Calculates pattern entropy and predictability metrics
+    - Discovers player tendencies without pre-programmed biases
 
-The AI combines these strategies using a weighted confidence system, prioritizing strategies that have been more
-reliable for that particular player.
+### Visualizations
 
-### Adaptive Difficulty
+The system includes multiple visualizations to help understand the AI's learning process:
 
-The system automatically adjusts difficulty:
-
-- For high-confidence predictions (>80%), occasionally makes a deliberately suboptimal move
-- For low-confidence predictions (<50%), incorporates more randomness
-- Between these thresholds, plays optimally based on the predicted move
+- **Move Frequency Chart**: Shows distribution of rock, paper, scissors choices
+- **Pattern Transition Heatmap**: Displays how moves follow specific patterns
+- **Pattern Strength Analysis**: Lists the strongest patterns the AI has detected
+- **Decision Tree Visualization**: Interactive tree showing possible move sequences with probabilities
 
 ## Project Structure
 
 ```
 rock-paper-scissors/
-├── app.py               # Main Flask application with game logic and AI
+├── app.py               # Main Flask application with ML-first game logic
 └── templates/
-    └── index.html       # Game UI template
+    └── index.html       # Game UI with interactive visualizations
 ```
 
 ## Customization
 
 You can modify the AI behavior by adjusting these parameters in `app.py`:
 
-- Change the `n_values` in the `EnhancedPredictor` initialization to track different sequence lengths
-- Adjust the confidence thresholds in `get_counter_move()` to change how the AI responds to predictions
-- Modify the weights in the `predict()` method to prioritize different prediction strategies
+- Change the `n_gram_range` in `ImprovedMLPredictor` initialization to track different sequence lengths
+- Adjust the `confidence_threshold` to modify when the AI uses pattern recognition vs. randomness
+- Modify the ngram weights calculation to prioritize different pattern lengths
 
 ## Contributing
 
@@ -113,4 +114,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - Flask for the web framework
 - Chart.js for data visualization
-- D3.js for advanced visualizations
+- D3.js for advanced visualizations, including the pattern tree
