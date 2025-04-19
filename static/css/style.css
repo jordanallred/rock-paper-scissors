@@ -1,0 +1,425 @@
+:root {
+    --primary: #0b2341;
+    --primary-dark: #233954;
+    --secondary: #e86100;
+    --neutral-100: #f3f4f6;
+    --neutral-200: #e5e7eb;
+    --neutral-300: #d1d5db;
+    --neutral-800: #1f2937;
+    --neutral-900: #111827;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    line-height: 1.6;
+    color: var(--neutral-800);
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem;
+    background-color: var(--neutral-100);
+}
+
+h1, h2, h3 {
+    color: var(--neutral-900);
+    line-height: 1.2;
+}
+
+h1 {
+    font-size: 2.25rem;
+    text-align: center;
+    margin-bottom: 0.5rem;
+    background: var(--secondary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+}
+
+h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    position: relative;
+}
+
+h2::after {
+    content: '';
+    display: block;
+    width: 50px;
+    height: 3px;
+    background: var(--secondary);
+    margin: 0.5rem auto 0;
+    border-radius: 999px;
+}
+
+h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.header-container {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.prediction-info {
+    font-size: 1.125rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--neutral-800);
+}
+
+.game-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.game-panel {
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-md);
+    padding: 1.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+
+.game-panel > h2 {
+    flex-shrink: 0;
+    margin-bottom: 1rem;
+}
+
+.history-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.game-panel:hover {
+    box-shadow: var(--shadow-lg);
+}
+
+.controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.move-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    width: 100%;
+}
+
+.move-button {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.25rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    box-shadow: var(--shadow);
+}
+
+.move-button:hover {
+    background-color: var(--primary-dark);
+    box-shadow: var(--shadow-md);
+}
+
+.reset-button {
+    background-color: var(--neutral-200);
+    color: var(--neutral-800);
+    border: none;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: var(--shadow-sm);
+}
+
+.reset-button:hover {
+    background-color: var(--neutral-300);
+    box-shadow: var(--shadow);
+}
+
+.current-round {
+    margin-bottom: 1.5rem;
+}
+
+.move-display {
+    display: flex;
+    justify-content: space-around;
+    margin: 1.5rem 0;
+}
+
+.move-box {
+    text-align: center;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background-color: var(--neutral-100);
+    width: 110px;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s;
+}
+
+.move-box:hover {
+    transform: scale(1.05);
+}
+
+.move-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    transition: transform 0.3s;
+}
+
+.move-box:hover .move-icon {
+    transform: rotate(10deg);
+}
+
+#resultDisplay {
+    font-size: 1.25rem;
+    font-weight: 600;
+    text-align: center;
+    margin: 1rem 0;
+    min-height: 1.5rem;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+}
+
+.result-win {
+    color: var(--success);
+    background-color: rgba(16, 185, 129, 0.1);
+}
+
+.result-lose {
+    color: var(--danger);
+    background-color: rgba(239, 68, 68, 0.1);
+}
+
+.result-tie {
+    color: var(--warning);
+    background-color: rgba(245, 158, 11, 0.1);
+}
+
+.scores {
+    display: flex;
+    justify-content: space-around;
+    margin: 1rem 0;
+    padding: 1rem;
+    background-color: var(--neutral-100);
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.score-box {
+    text-align: center;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    transition: transform 0.2s;
+}
+
+.score-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.history {
+    max-height: 650px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+    margin-top: 1rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--neutral-300) transparent;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 250px;
+}
+
+.game-panel:nth-child(2) {
+    display: flex;
+    flex-direction: column;
+}
+
+.game-panel:nth-child(2) h2 {
+    flex-shrink: 0;
+}
+
+.history::-webkit-scrollbar {
+    width: 6px;
+}
+
+.history::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.history::-webkit-scrollbar-thumb {
+    background-color: var(--neutral-300);
+    border-radius: 6px;
+}
+
+.history-item {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--neutral-200);
+    transition: background-color 0.2s;
+}
+
+.history-item:hover {
+    background-color: var(--neutral-100);
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}
+
+.charts-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.chart-panel {
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-md);
+    padding: 1.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.chart-panel:hover {
+    box-shadow: var(--shadow-lg);
+}
+
+#heatmapContainer {
+    margin-top: 1rem;
+    overflow-x: auto;
+    height: 100%;
+    max-height: 650px;
+    display: flex;
+    flex-direction: column;
+}
+
+#heatmapContainer table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+#heatmapContainer thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+#heatmapContainer th {
+    background-color: var(--neutral-100);
+    padding: 0.75rem;
+    text-align: left;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+}
+
+#heatmapContainer tbody {
+    overflow-y: auto;
+}
+
+#heatmapContainer td {
+    padding: 0.75rem;
+    transition: opacity 0.2s;
+}
+
+#heatmapContainer tr:hover td {
+    opacity: 0.9;
+}
+
+.prediction-info {
+    text-align: center;
+    margin-top: 0.5rem;
+    font-style: italic;
+    color: var(--neutral-800);
+    background-color: var(--neutral-100);
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+}
+
+@media (max-width: 768px) {
+    .game-container, .charts-container {
+        grid-template-columns: 1fr;
+    }
+
+    .move-buttons {
+        flex-direction: column;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.game-panel, .chart-panel {
+    animation: fadeIn 0.5s ease-out, slideUp 0.5s ease-out;
+}
+
+.game-panel:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.chart-panel:nth-child(1) {
+    animation-delay: 0.2s;
+}
+
+.chart-panel:nth-child(2) {
+    animation-delay: 0.3s;
+}
+
+.chart-panel:nth-child(3) {
+    animation-delay: 0.4s;
+}
