@@ -1,6 +1,7 @@
 # Rock Paper Scissors AI
 
-A Flask-based web application that lets users play Rock Paper Scissors against an AI that learns and adapts to their playing patterns in real-time.
+A Flask-based web application that lets users play Rock Paper Scissors against an AI that learns and adapts to their
+playing patterns in real-time.
 
 ![Rock Paper Scissors AI Game](game.png)
 
@@ -10,9 +11,9 @@ A Flask-based web application that lets users play Rock Paper Scissors against a
 - **Multi-Strategy Prediction**: Uses N-gram sequence analysis and psychological pattern recognition
 - **Real-Time Learning**: AI adapts after each round, getting better at predicting your next move
 - **Interactive Visualizations**:
-  - Move frequency chart showing your pattern tendencies
-  - Transition heatmap revealing your sequential patterns
-  - Pattern strength analysis showing which patterns the AI has detected
+    - Move frequency chart showing your pattern tendencies
+    - Transition heatmap revealing your sequential patterns
+    - Pattern strength analysis showing which patterns the AI has detected
 - **Strategy Transparency**: See which prediction strategy the AI is using against you
 - **Session-Based**: Each user gets their own independent model that evolves separately
 
@@ -26,23 +27,27 @@ A Flask-based web application that lets users play Rock Paper Scissors against a
 ### Setup
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/yourusername/rock-paper-scissors-ai.git
 cd rock-paper-scissors-ai
 ```
 
 2. Create a virtual environment:
+
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
 3. Install the required packages:
+
 ```bash
 pip install flask
 ```
 
 4. Run the application:
+
 ```bash
 python app.py
 ```
@@ -55,20 +60,21 @@ python app.py
 
 The core of the application is the `EnhancedPredictor` class which uses multiple strategies to predict player behavior:
 
-1. **Multi-length N-gram Analysis**: 
-   - Tracks sequences of different lengths (2, 3, and 4 moves)
-   - Longer sequences get higher weight when they match
-   - Builds transition tables showing the likelihood of each move following each pattern
+1. **Multi-length N-gram Analysis**:
+    - Tracks sequences of different lengths (2, 3, and 4 moves)
+    - Longer sequences get higher weight when they match
+    - Builds transition tables showing the likelihood of each move following each pattern
 
 2. **Frequency Analysis**:
-   - Tracks overall move frequencies (rock, paper, scissors)
-   - Uses this as a fallback strategy
+    - Tracks overall move frequencies (rock, paper, scissors)
+    - Uses this as a fallback strategy
 
 3. **Result-Based Patterns**:
-   - Monitors how players change their moves after wins, losses, or ties
-   - Takes advantage of psychological patterns in human play
+    - Monitors how players change their moves after wins, losses, or ties
+    - Takes advantage of psychological patterns in human play
 
-The AI combines these strategies using a weighted confidence system, prioritizing strategies that have been more reliable for that particular player.
+The AI combines these strategies using a weighted confidence system, prioritizing strategies that have been more
+reliable for that particular player.
 
 ### Adaptive Difficulty
 

@@ -4,18 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rock Paper Scissors AI</title>
-    <!-- Load Chart.js before our script -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
-    <!-- Load Inter font for better typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --secondary: #ec4899;
+            --primary: #0b2341;
+            --primary-dark: #233954;
+            --secondary: #e86100;
             --neutral-100: #f3f4f6;
             --neutral-200: #e5e7eb;
             --neutral-300: #d1d5db;
@@ -55,7 +53,7 @@
             font-size: 2.25rem;
             text-align: center;
             margin-bottom: 0.5rem;
-            background: linear-gradient(to right, var(--primary), var(--secondary));
+            background: var(--secondary);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -74,7 +72,7 @@
             display: block;
             width: 50px;
             height: 3px;
-            background: linear-gradient(to right, var(--primary), var(--secondary));
+            background: var(--secondary);
             margin: 0.5rem auto 0;
             border-radius: 999px;
         }
@@ -412,15 +410,24 @@
             }
         }
 
-        /* Animations */
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
         }
 
         @keyframes slideUp {
-            from { transform: translateY(10px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            from {
+                transform: translateY(10px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         .game-panel, .chart-panel {
@@ -446,61 +453,62 @@
 
 </head>
 <body>
-    <div class="header-container">
-        <h1>Rock Paper Scissors AI</h1>
-        <p class="prediction-info">The AI learns your patterns and tries to predict your next move!</p>
-    </div>
+<div class="header-container">
+    <h1>Rock Paper Scissors AI</h1>
+    <p class="prediction-info">The AI learns your patterns and tries to predict your next move!</p>
+</div>
 
-    <div class="game-container">
-        <div class="game-panel">
-            <div class="current-round">
-                <h2>Current Round</h2>
-                <div class="move-display">
-                    <div class="move-box">
-                        <div class="move-icon" id="userMoveIcon">?</div>
-                        <div>You</div>
-                    </div>
-                    <div class="move-box">
-                        <div class="move-icon" id="aiMoveIcon">?</div>
-                        <div>AI</div>
-                    </div>
-                </div>
-                <div id="resultDisplay">Choose your move!</div>
-                <div id="confidenceDisplay" class="prediction-info"></div>
-                <div id="strategyDisplay" class="prediction-info"></div>
-            </div>
-
-            <div class="controls">
-                <div class="move-buttons">
-                    <button class="move-button" data-move="rock"><span class="move-icon-small">✊</span> Rock</button>
-                    <button class="move-button" data-move="paper"><span class="move-icon-small">✋</span> Paper</button>
-                    <button class="move-button" data-move="scissors"><span class="move-icon-small">✌️</span> Scissors</button>
-                </div>
-                <button class="reset-button" id="resetButton">Reset Game</button>
-            </div>
-
-            <div class="scores">
-                <div class="score-box">
-                    <div class="score-value" id="userScore">{{ scores.user }}</div>
+<div class="game-container">
+    <div class="game-panel">
+        <div class="current-round">
+            <h2>Current Round</h2>
+            <div class="move-display">
+                <div class="move-box">
+                    <div class="move-icon" id="userMoveIcon">?</div>
                     <div>You</div>
                 </div>
-                <div class="score-box">
-                    <div class="score-value" id="tieScore">{{ scores.tie }}</div>
-                    <div>Ties</div>
-                </div>
-                <div class="score-box">
-                    <div class="score-value" id="aiScore">{{ scores.ai }}</div>
+                <div class="move-box">
+                    <div class="move-icon" id="aiMoveIcon">?</div>
                     <div>AI</div>
                 </div>
             </div>
+            <div id="resultDisplay">Choose your move!</div>
+            <div id="confidenceDisplay" class="prediction-info"></div>
+            <div id="strategyDisplay" class="prediction-info"></div>
         </div>
 
-        <div class="game-panel">
-            <h2>Game History</h2>
-            <div class="history-container">
-                <div class="history" id="historyContainer">
-                    {% if rounds %}
-                        {% for round in rounds %}
+        <div class="controls">
+            <div class="move-buttons">
+                <button class="move-button" data-move="rock"><span class="move-icon-small">✊</span> Rock</button>
+                <button class="move-button" data-move="paper"><span class="move-icon-small">✋</span> Paper</button>
+                <button class="move-button" data-move="scissors"><span class="move-icon-small">✌️</span> Scissors
+                </button>
+            </div>
+            <button class="reset-button" id="resetButton">Reset Game</button>
+        </div>
+
+        <div class="scores">
+            <div class="score-box">
+                <div class="score-value" id="userScore">{{ scores.user }}</div>
+                <div>You</div>
+            </div>
+            <div class="score-box">
+                <div class="score-value" id="tieScore">{{ scores.tie }}</div>
+                <div>Ties</div>
+            </div>
+            <div class="score-box">
+                <div class="score-value" id="aiScore">{{ scores.ai }}</div>
+                <div>AI</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-panel">
+        <h2>Game History</h2>
+        <div class="history-container">
+            <div class="history" id="historyContainer">
+                {% if rounds %}
+                    {% for round in rounds %}
                         <div class="history-item">
                             <span>Round {{ loop.index }}: You played {{ round.user_move }}, AI played {{ round.ai_move }}</span>
                             <span class="result-{{ round.result }}">
@@ -513,272 +521,272 @@
                                 {% endif %}
                             </span>
                         </div>
-                        {% endfor %}
-                    {% else %}
-                        <div class="history-item">No rounds played yet.</div>
-                    {% endif %}
-                </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="history-item">No rounds played yet.</div>
+                {% endif %}
             </div>
         </div>
     </div>
+</div>
 
-    <div class="charts-container">
-        <div class="chart-panel">
-            <h2>Your Move Frequencies</h2>
-            <canvas id="moveChart"></canvas>
-        </div>
-
-        <div class="chart-panel">
-            <h2>Pattern Analysis</h2>
-            <div id="heatmapContainer"></div>
-        </div>
-
-        <div class="chart-panel">
-            <h2>AI Analysis</h2>
-            <div id="strategyAnalysisContainer">
-                <h3>Detected Patterns</h3>
-                <div id="patternsList"></div>
-            </div>
-        </div>
+<div class="charts-container">
+    <div class="chart-panel">
+        <h2>Your Move Frequencies</h2>
+        <canvas id="moveChart"></canvas>
     </div>
 
-    <script>
-        // Global variables
-        const moveIcons = {
-            'rock': '✊',
-            'paper': '✋',
-            'scissors': '✌️'
-        };
+    <div class="chart-panel">
+        <h2>Pattern Analysis</h2>
+        <div id="heatmapContainer"></div>
+    </div>
 
-        let moveChart = null;
+    <div class="chart-panel">
+        <h2>AI Analysis</h2>
+        <div id="strategyAnalysisContainer">
+            <h3>Detected Patterns</h3>
+            <div id="patternsList"></div>
+        </div>
+    </div>
+</div>
 
-        // Initialize move frequency data
-        const moveData = {
-            labels: ['Rock', 'Paper', 'Scissors'],
-            datasets: [{
-                label: 'Move Frequency',
-                data: [0, 0, 0],
-                backgroundColor: [
-                    'rgba(54, 162, 235, 0.6)',
-                    'rgba(75, 192, 192, 0.6)',
-                    'rgba(255, 99, 132, 0.6)'
-                ],
-                borderColor: [
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(255, 99, 132, 1)'
-                ],
-                borderWidth: 1
-            }]
-        };
+<script>
 
-        // Wait for document to be fully loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            initGame();
-            addEventListeners();
+    const moveIcons = {
+        'rock': '✊',
+        'paper': '✋',
+        'scissors': '✌️'
+    };
+
+    let moveChart = null;
+
+
+    const moveData = {
+        labels: ['Rock', 'Paper', 'Scissors'],
+        datasets: [{
+            label: 'Move Frequency',
+            data: [0, 0, 0],
+            backgroundColor: [
+                'rgba(54, 162, 235, 0.6)',
+                'rgba(75, 192, 192, 0.6)',
+                'rgba(255, 99, 132, 0.6)'
+            ],
+            borderColor: [
+                'rgba(54, 162, 235, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(255, 99, 132, 1)'
+            ],
+            borderWidth: 1
+        }]
+    };
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        initGame();
+        addEventListeners();
+    });
+
+
+    function initGame() {
+
+        try {
+            initMoveChart();
+        } catch (err) {
+            console.warn("Could not initialize chart:", err);
+            document.getElementById('moveChart').innerHTML =
+                '<p>Chart visualization not available</p>';
+        }
+
+
+        document.getElementById('heatmapContainer').innerHTML =
+            '<p>Not enough data to display patterns yet.</p>';
+        document.getElementById('patternsList').innerHTML =
+            '<p>Not enough data to analyze patterns yet.</p>';
+    }
+
+
+    function addEventListeners() {
+
+        document.querySelectorAll('.move-button').forEach(button => {
+            button.addEventListener('click', function () {
+                const move = this.getAttribute('data-move');
+                playMove(move);
+            });
         });
 
-        // Initialize game state
-        function initGame() {
-            // Initialize move chart if Chart.js is available
-            try {
-                initMoveChart();
-            } catch (err) {
-                console.warn("Could not initialize chart:", err);
-                document.getElementById('moveChart').innerHTML =
-                    '<p>Chart visualization not available</p>';
-            }
 
-            // Setup placeholder content
-            document.getElementById('heatmapContainer').innerHTML =
-                '<p>Not enough data to display patterns yet.</p>';
-            document.getElementById('patternsList').innerHTML =
-                '<p>Not enough data to analyze patterns yet.</p>';
+        document.getElementById('resetButton').addEventListener('click', function () {
+            resetGame();
+        });
+    }
+
+
+    function initMoveChart() {
+        if (typeof Chart === 'undefined') {
+            throw new Error("Chart.js library not available");
         }
 
-        // Set up event listeners
-        function addEventListeners() {
-            // Add event listeners for move buttons
-            document.querySelectorAll('.move-button').forEach(button => {
-                button.addEventListener('click', function() {
-                    const move = this.getAttribute('data-move');
-                    playMove(move);
-                });
-            });
-
-            // Add event listener for reset button
-            document.getElementById('resetButton').addEventListener('click', function() {
-                resetGame();
-            });
-        }
-
-        // Initialize the move chart
-        function initMoveChart() {
-            if (typeof Chart === 'undefined') {
-                throw new Error("Chart.js library not available");
-            }
-
-            const ctx = document.getElementById('moveChart').getContext('2d');
-            moveChart = new Chart(ctx, {
-                type: 'bar',
-                data: moveData,
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 100,
-                            ticks: {
-                                callback: function(value) {
-                                    return value + '%';
-                                }
+        const ctx = document.getElementById('moveChart').getContext('2d');
+        moveChart = new Chart(ctx, {
+            type: 'bar',
+            data: moveData,
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function (value) {
+                                return value + '%';
                             }
                         }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
                     },
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.raw.toFixed(1) + '%';
-                                }
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                return context.raw.toFixed(1) + '%';
                             }
                         }
                     }
                 }
-            });
-        }
-
-        // Update the move chart with new data
-        function updateMoveChart(frequencies) {
-            try {
-                if (!moveChart) {
-                    initMoveChart();
-                }
-
-                moveChart.data.datasets[0].data = [
-                    frequencies.rock * 100 || 0,
-                    frequencies.paper * 100 || 0,
-                    frequencies.scissors * 100 || 0
-                ];
-                moveChart.update();
-            } catch (err) {
-                console.warn("Could not update chart:", err);
             }
-        }
+        });
+    }
 
-        // Create/update heatmap visualization
-        function updateHeatmap(transitions) {
-            const container = document.getElementById('heatmapContainer');
-            container.innerHTML = '';
 
-            if (!transitions || Object.keys(transitions).length === 0) {
-                container.innerHTML = '<p>Not enough data to display patterns yet.</p>';
-                return;
+    function updateMoveChart(frequencies) {
+        try {
+            if (!moveChart) {
+                initMoveChart();
             }
 
-            // Create HTML table for the heatmap
-            let table = document.createElement('table');
-            table.style.width = '100%';
-            table.style.borderCollapse = 'collapse';
+            moveChart.data.datasets[0].data = [
+                frequencies.rock * 100 || 0,
+                frequencies.paper * 100 || 0,
+                frequencies.scissors * 100 || 0
+            ];
+            moveChart.update();
+        } catch (err) {
+            console.warn("Could not update chart:", err);
+        }
+    }
 
-            // Create header row
-            let thead = document.createElement('thead');
-            let headerRow = document.createElement('tr');
 
-            let cornerCell = document.createElement('th');
-            cornerCell.textContent = 'Pattern → Next';
-            cornerCell.style.padding = '8px';
-            cornerCell.style.borderBottom = '1px solid #ddd';
-            headerRow.appendChild(cornerCell);
+    function updateHeatmap(transitions) {
+        const container = document.getElementById('heatmapContainer');
+        container.innerHTML = '';
 
-            ['Rock', 'Paper', 'Scissors'].forEach(move => {
-                let th = document.createElement('th');
-                th.textContent = move;
-                th.style.padding = '8px';
-                th.style.borderBottom = '1px solid #ddd';
-                headerRow.appendChild(th);
-            });
-
-            thead.appendChild(headerRow);
-            table.appendChild(thead);
-
-            // Create table body
-            let tbody = document.createElement('tbody');
-
-            Object.entries(transitions).forEach(([pattern, counts]) => {
-                let row = document.createElement('tr');
-
-                // Add pattern label
-                let labelCell = document.createElement('td');
-                labelCell.textContent = pattern;
-                labelCell.style.padding = '8px';
-                labelCell.style.borderBottom = '1px solid #ddd';
-                row.appendChild(labelCell);
-
-                // Calculate total for this pattern
-                const total = counts.rock + counts.paper + counts.scissors || 0;
-
-                // Add cells for each move
-                ['rock', 'paper', 'scissors'].forEach(move => {
-                    let cell = document.createElement('td');
-                    const count = counts[move] || 0;
-                    const percentage = total ? (count / total * 100).toFixed(1) : 0;
-
-                    // Set background color intensity based on percentage
-                    const intensity = Math.min(0.9, count / (total || 1));
-                    const backgroundColor = move === 'rock'
-                        ? `rgba(54, 162, 235, ${intensity})`
-                        : move === 'paper'
-                            ? `rgba(75, 192, 192, ${intensity})`
-                            : `rgba(255, 99, 132, ${intensity})`;
-
-                    cell.textContent = `${count} (${percentage}%)`;
-                    cell.style.padding = '8px';
-                    cell.style.textAlign = 'center';
-                    cell.style.backgroundColor = backgroundColor;
-                    cell.style.color = intensity > 0.6 ? 'white' : 'black';
-                    cell.style.borderBottom = '1px solid #ddd';
-                    row.appendChild(cell);
-                });
-
-                tbody.appendChild(row);
-            });
-
-            table.appendChild(tbody);
-            container.appendChild(table);
+        if (!transitions || Object.keys(transitions).length === 0) {
+            container.innerHTML = '<p>Not enough data to display patterns yet.</p>';
+            return;
         }
 
-        // Update strategy analysis visualization
-        function updateStrategyAnalysis(strategyStats) {
-            const container = document.getElementById('patternsList');
-            container.innerHTML = '';
 
-            // Check if we have pattern data
-            if (!strategyStats || !strategyStats.patterns || Object.keys(strategyStats.patterns).length === 0) {
-                container.innerHTML = '<p>Not enough data to analyze patterns yet.</p>';
-                return;
-            }
+        let table = document.createElement('table');
+        table.style.width = '100%';
+        table.style.borderCollapse = 'collapse';
 
-            // Create list of detected patterns
-            const patternsList = document.createElement('ul');
-            patternsList.style.listStyleType = 'none';
-            patternsList.style.padding = '0';
 
-            Object.entries(strategyStats.patterns).forEach(([pattern, stats]) => {
-                const listItem = document.createElement('li');
-                listItem.style.padding = '8px';
-                listItem.style.margin = '5px 0';
-                listItem.style.backgroundColor = 'rgba(0,0,0,0.05)';
-                listItem.style.borderRadius = '4px';
+        let thead = document.createElement('thead');
+        let headerRow = document.createElement('tr');
 
-                // Calculate confidence color (red to green)
-                const colorValue = Math.floor(stats.strength * 255);
-                const confidenceColor = `rgb(${255-colorValue}, ${colorValue}, 0)`;
+        let cornerCell = document.createElement('th');
+        cornerCell.textContent = 'Pattern → Next';
+        cornerCell.style.padding = '8px';
+        cornerCell.style.borderBottom = '1px solid #ddd';
+        headerRow.appendChild(cornerCell);
 
-                listItem.innerHTML = `
+        ['Rock', 'Paper', 'Scissors'].forEach(move => {
+            let th = document.createElement('th');
+            th.textContent = move;
+            th.style.padding = '8px';
+            th.style.borderBottom = '1px solid #ddd';
+            headerRow.appendChild(th);
+        });
+
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+
+        let tbody = document.createElement('tbody');
+
+        Object.entries(transitions).forEach(([pattern, counts]) => {
+            let row = document.createElement('tr');
+
+
+            let labelCell = document.createElement('td');
+            labelCell.textContent = pattern;
+            labelCell.style.padding = '8px';
+            labelCell.style.borderBottom = '1px solid #ddd';
+            row.appendChild(labelCell);
+
+
+            const total = counts.rock + counts.paper + counts.scissors || 0;
+
+
+            ['rock', 'paper', 'scissors'].forEach(move => {
+                let cell = document.createElement('td');
+                const count = counts[move] || 0;
+                const percentage = total ? (count / total * 100).toFixed(1) : 0;
+
+
+                const intensity = Math.min(0.9, count / (total || 1));
+                const backgroundColor = move === 'rock'
+                    ? `rgba(54, 162, 235, ${intensity})`
+                    : move === 'paper'
+                        ? `rgba(75, 192, 192, ${intensity})`
+                        : `rgba(255, 99, 132, ${intensity})`;
+
+                cell.textContent = `${count} (${percentage}%)`;
+                cell.style.padding = '8px';
+                cell.style.textAlign = 'center';
+                cell.style.backgroundColor = backgroundColor;
+                cell.style.color = intensity > 0.6 ? 'white' : 'black';
+                cell.style.borderBottom = '1px solid #ddd';
+                row.appendChild(cell);
+            });
+
+            tbody.appendChild(row);
+        });
+
+        table.appendChild(tbody);
+        container.appendChild(table);
+    }
+
+
+    function updateStrategyAnalysis(strategyStats) {
+        const container = document.getElementById('patternsList');
+        container.innerHTML = '';
+
+
+        if (!strategyStats || !strategyStats.patterns || Object.keys(strategyStats.patterns).length === 0) {
+            container.innerHTML = '<p>Not enough data to analyze patterns yet.</p>';
+            return;
+        }
+
+
+        const patternsList = document.createElement('ul');
+        patternsList.style.listStyleType = 'none';
+        patternsList.style.padding = '0';
+
+        Object.entries(strategyStats.patterns).forEach(([pattern, stats]) => {
+            const listItem = document.createElement('li');
+            listItem.style.padding = '8px';
+            listItem.style.margin = '5px 0';
+            listItem.style.backgroundColor = 'rgba(0,0,0,0.05)';
+            listItem.style.borderRadius = '4px';
+
+
+            const colorValue = Math.floor(stats.strength * 255);
+            const confidenceColor = `rgb(${255 - colorValue}, ${colorValue}, 0)`;
+
+            listItem.innerHTML = `
                     <div style="display:flex; justify-content:space-between;">
                         <strong>${pattern}</strong>
                         <span style="color:${confidenceColor}; font-weight:bold;">${(stats.strength * 100).toFixed(1)}%</span>
@@ -788,64 +796,64 @@
                     </div>
                 `;
 
-                patternsList.appendChild(listItem);
-            });
+            patternsList.appendChild(listItem);
+        });
 
-            container.appendChild(patternsList);
+        container.appendChild(patternsList);
+    }
+
+
+    function updateHistory(data) {
+        const historyContainer = document.getElementById('historyContainer');
+        const historyItem = document.createElement('div');
+        historyItem.className = 'history-item';
+
+        const moveText = document.createElement('span');
+        moveText.textContent = `Round ${historyContainer.children.length + 1}: You played ${data.user_move}, AI played ${data.ai_move} `;
+
+        const resultText = document.createElement('span');
+        resultText.className = `result-${data.result}`;
+        if (data.result === 'win') {
+            resultText.textContent = 'You won!';
+        } else if (data.result === 'lose') {
+            resultText.textContent = 'AI won!';
+        } else {
+            resultText.textContent = 'Tie!';
         }
 
-        // Update game history display
-        function updateHistory(data) {
-            const historyContainer = document.getElementById('historyContainer');
-            const historyItem = document.createElement('div');
-            historyItem.className = 'history-item';
+        historyItem.appendChild(moveText);
+        historyItem.appendChild(resultText);
 
-            const moveText = document.createElement('span');
-            moveText.textContent = `Round ${historyContainer.children.length + 1}: You played ${data.user_move}, AI played ${data.ai_move} `;
 
-            const resultText = document.createElement('span');
-            resultText.className = `result-${data.result}`;
-            if (data.result === 'win') {
-                resultText.textContent = 'You won!';
-            } else if (data.result === 'lose') {
-                resultText.textContent = 'AI won!';
-            } else {
-                resultText.textContent = 'Tie!';
-            }
-
-            historyItem.appendChild(moveText);
-            historyItem.appendChild(resultText);
-
-            // Add strategy information
-            if (data.strategy) {
-                const strategyText = document.createElement('div');
-                strategyText.textContent = `AI strategy: ${data.strategy}`;
-                strategyText.style.fontSize = '0.8em';
-                strategyText.style.color = '#666';
-                historyItem.appendChild(strategyText);
-            }
-
-            // Add new item at the top
-            if (historyContainer.firstChild) {
-                historyContainer.insertBefore(historyItem, historyContainer.firstChild);
-                // Keep only the last 10 rounds
-                if (historyContainer.children.length > 10) {
-                    historyContainer.removeChild(historyContainer.lastChild);
-                }
-            } else {
-                historyContainer.appendChild(historyItem);
-            }
+        if (data.strategy) {
+            const strategyText = document.createElement('div');
+            strategyText.textContent = `AI strategy: ${data.strategy}`;
+            strategyText.style.fontSize = '0.8em';
+            strategyText.style.color = '#666';
+            historyItem.appendChild(strategyText);
         }
 
-        // Play a move
-        function playMove(move) {
-            const formData = new FormData();
-            formData.append('move', move);
 
-            fetch('/play', {
-                method: 'POST',
-                body: formData
-            })
+        if (historyContainer.firstChild) {
+            historyContainer.insertBefore(historyItem, historyContainer.firstChild);
+
+            if (historyContainer.children.length > 10) {
+                historyContainer.removeChild(historyContainer.lastChild);
+            }
+        } else {
+            historyContainer.appendChild(historyItem);
+        }
+    }
+
+
+    function playMove(move) {
+        const formData = new FormData();
+        formData.append('move', move);
+
+        fetch('/play', {
+            method: 'POST',
+            body: formData
+        })
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`Server error: ${response.status}`);
@@ -854,11 +862,11 @@
             })
             .then(data => {
                 try {
-                    // Update move display
+
                     document.getElementById('userMoveIcon').textContent = moveIcons[data.user_move];
                     document.getElementById('aiMoveIcon').textContent = moveIcons[data.ai_move];
 
-                    // Update result display
+
                     let resultText = '';
                     let resultClass = '';
                     if (data.result === 'win') {
@@ -874,7 +882,7 @@
                     document.getElementById('resultDisplay').textContent = resultText;
                     document.getElementById('resultDisplay').className = resultClass;
 
-                    // Update confidence and strategy displays
+
                     document.getElementById('confidenceDisplay').textContent =
                         `AI confidence: ${data.confidence}%`;
 
@@ -883,15 +891,15 @@
                             `Strategy: ${data.strategy}`;
                     }
 
-                    // Update scores
+
                     document.getElementById('userScore').textContent = data.scores.user;
                     document.getElementById('aiScore').textContent = data.scores.ai;
                     document.getElementById('tieScore').textContent = data.scores.tie;
 
-                    // Update history
+
                     updateHistory(data);
 
-                    // Update visualizations
+
                     if (data.move_frequencies) {
                         updateMoveChart(data.move_frequencies);
                     }
@@ -906,27 +914,27 @@
 
                 } catch (err) {
                     console.warn("Error updating UI:", err);
-                    // Game continues even if UI update fails
+
                 }
             })
             .catch(err => {
                 console.error("Error playing move:", err);
-                // Only show alert if icons haven't been updated yet
+
                 if (document.getElementById('userMoveIcon').textContent === '?' ||
                     document.getElementById('aiMoveIcon').textContent === '?') {
                     alert('Error playing move. Please try again.');
                 }
             });
-        }
+    }
 
-        // Reset the game
-        function resetGame() {
-            fetch('/reset', {
-                method: 'POST'
-            })
+
+    function resetGame() {
+        fetch('/reset', {
+            method: 'POST'
+        })
             .then(response => response.json())
             .then(data => {
-                // Reset displays
+
                 document.getElementById('userMoveIcon').textContent = '?';
                 document.getElementById('aiMoveIcon').textContent = '?';
                 document.getElementById('resultDisplay').textContent = 'Choose your move!';
@@ -934,16 +942,16 @@
                 document.getElementById('confidenceDisplay').textContent = '';
                 document.getElementById('strategyDisplay').textContent = '';
 
-                // Reset scores
+
                 document.getElementById('userScore').textContent = '0';
                 document.getElementById('aiScore').textContent = '0';
                 document.getElementById('tieScore').textContent = '0';
 
-                // Clear history
+
                 document.getElementById('historyContainer').innerHTML =
                     '<div class="history-item">No rounds played yet.</div>';
 
-                // Reset visualizations
+
                 try {
                     if (moveChart) {
                         moveChart.data.datasets[0].data = [0, 0, 0];
@@ -964,7 +972,7 @@
                 console.error("Error resetting game:", err);
                 alert('Error resetting game. Please try again.');
             });
-        }
-    </script>
+    }
+</script>
 </body>
 </html>
