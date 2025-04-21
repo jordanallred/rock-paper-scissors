@@ -256,7 +256,7 @@ class ImprovedMLPredictor:
                     pattern_strengths.append((pattern_str, strength, observations))
 
         pattern_strengths.sort(key=lambda x: (x[1], x[2]), reverse=True)
-        for i, (pattern, strength, count) in enumerate(pattern_strengths[:5]):
+        for index, (pattern, strength, count) in enumerate(pattern_strengths[:5]):
             stats["patterns"][pattern] = {"strength": strength, "count": count}
 
         return stats
@@ -319,6 +319,7 @@ def get_predictor_path(session_id):
 def save_predictor(predictor, session_id):
     """Save predictor to filesystem instead of session."""
     path = get_predictor_path(session_id)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, 'wb') as f:
         pickle.dump(predictor, f)
     return path
@@ -348,12 +349,11 @@ def index():
 
     if 'scores' not in session:
         session['scores'] = {'user': 0, 'ai': 0, 'tie': 0}
-    if 'rounds' not in session:
-        session['rounds'] = []
+    if 'round_number' not in session:
+        session['round_number'] = 0
 
     return render_template('index.html',
-                           scores=session['scores'],
-                           rounds=session['rounds'])
+                           scores=session['scores'])
 
 
 @app.route('/play', methods=['POST'])
@@ -364,6 +364,9 @@ def play():
 
         if user_move not in CHOICES:
             return jsonify({'error': 'Invalid move'}), 400
+
+        if 'id' not in session:
+            session['id'] = base64.b64encode(os.urandom(16)).decode('utf-8')
 
         predictor = load_predictor(session['id'])
 
@@ -378,6 +381,9 @@ def play():
         else:
             result = 'tie'
 
+        if 'scores' not in session:
+            session['scores'] = {'user': 0, 'ai': 0, 'tie': 0}
+
         scores = session['scores']
         if result == 'win':
             scores['user'] += 1
@@ -390,10 +396,11 @@ def play():
 
         save_predictor(predictor, session['id'])
 
-        rounds = session['rounds']
+        session['round_number'] += 1
+        total_round_number = session['round_number']
 
         new_round = {
-            'round_number': len(rounds) + 1,
+            'round_number': total_round_number,
             'user_move': user_move,
             'ai_move': ai_move,
             'result': result,
@@ -401,16 +408,7 @@ def play():
             'strategy': strategy
         }
 
-        rounds.append(new_round)
-
-        if len(rounds) > 10:
-            rounds.pop(0)
-
-            for i, r in enumerate(rounds):
-                r['round_number'] = i + 1
-
         session['scores'] = scores
-        session['rounds'] = rounds
 
         try:
             strategy_stats = predictor.get_strategy_stats()
@@ -447,14 +445,13 @@ def reset():
 
     predictor = ImprovedMLPredictor()
 
-    if 'id' in session:
-        save_predictor(predictor, session['id'])
-    else:
+    if 'id' not in session:
         session['id'] = base64.b64encode(os.urandom(16)).decode('utf-8')
-        save_predictor(predictor, session['id'])
+
+    save_predictor(predictor, session['id'])
 
     session['scores'] = {'user': 0, 'ai': 0, 'tie': 0}
-    session['rounds'] = []
+    session['round_number'] = 0
 
     return jsonify({'message': 'Game reset successfully'})
 

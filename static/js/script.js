@@ -211,13 +211,11 @@ function updateHistory(data) {
         historyContainer.innerHTML = '';
     }
 
-    const roundNumber = historyContainer.children.length + 1;
-
     const historyItem = document.createElement('div');
     historyItem.className = 'history-item';
 
     const moveText = document.createElement('span');
-    moveText.textContent = `Round ${roundNumber}: You played ${data.user_move}, AI played ${data.ai_move} `;
+    moveText.textContent = `Round ${data.round_number}: You played ${data.user_move}, AI played ${data.ai_move} `;
 
     const resultText = document.createElement('span');
     resultText.className = `result-${data.result}`;
