@@ -38,14 +38,14 @@ COUNTER_TO = {
 
 
 class ImprovedMLPredictor:
-    """A predictor that prioritizes learning from data with minimal human intervention."""
+    """Enhanced predictor that exploits human psychological patterns in RPS."""
 
-    def __init__(self, n_gram_range=(1, 7), confidence_threshold=0.55):
-        """Initialize the predictor with configurable n-gram lengths.
+    def __init__(self, n_gram_range=(1, 7), confidence_threshold=0.48):
+        """Initialize the predictor with anti-human psychology strategies.
 
         Args:
             n_gram_range (tuple): The minimum and maximum n-gram lengths to track (inclusive)
-            confidence_threshold (float): Threshold to determine when to trust ML vs random
+            confidence_threshold (float): Threshold to determine when to trust ML vs exploit human biases
         """
         self.min_n, self.max_n = n_gram_range
         self.n_values = list(range(self.min_n, self.max_n + 1))
@@ -56,21 +56,41 @@ class ImprovedMLPredictor:
         self.history = []
         self.transitions = {n: {} for n in self.n_values}
         self.move_counts = {'rock': 0, 'paper': 0, 'scissors': 0}
+        self.ai_moves = []
+        self.results = []
 
         self.prediction_accuracy = {'correct': 0, 'total': 0}
         self.randomness_used = 0
         self.total_decisions = 0
+        
+        # Anti-human psychology tracking
+        self.streak_lengths = {'rock': 0, 'paper': 0, 'scissors': 0}
+        self.current_streak = {'move': None, 'count': 0}
+        self.win_loss_streak = {'type': None, 'count': 0}
+        self.rotation_patterns = []
+        self.gambler_fallacy_count = 0
 
-    def update(self, move, result=None):
-        """Update the model with a new move.
+    def update(self, move, result=None, ai_move=None):
+        """Update the model with a new move and result.
 
         Args:
             move (str): The user's move ('rock', 'paper', or 'scissors')
-            result (str, optional): The result of the round (unused in pure ML approach)
+            result (str, optional): The result of the round ('win', 'lose', 'tie')
+            ai_move (str, optional): The AI's move for this round
         """
-
         self.history.append(move)
         self.move_counts[move] += 1
+        
+        if ai_move:
+            self.ai_moves.append(ai_move)
+        if result:
+            self.results.append(result)
+
+        # Update streak tracking
+        self._update_streaks(move, result)
+        
+        # Track rotation patterns (rock->paper->scissors cycles)
+        self._update_rotation_patterns(move)
 
         for n in self.n_values:
             self._update_ngram(n, move)
@@ -154,7 +174,7 @@ class ImprovedMLPredictor:
         return best_prediction['move'], best_prediction['confidence'], best_prediction['strategy']
 
     def get_counter_move(self):
-        """Choose a move that counters the predicted user move.
+        """Choose a move using advanced anti-human strategies.
 
         Returns:
             str: AI's move ('rock', 'paper', or 'scissors')
@@ -163,9 +183,23 @@ class ImprovedMLPredictor:
         """
         self.total_decisions += 1
 
-        predicted_move, confidence, strategy = self.predict()
+        # Try psychological exploitation strategies first
+        psych_move, psych_confidence, psych_strategy = self._exploit_human_psychology()
+        if psych_confidence > 0.7:
+            return psych_move, psych_confidence, psych_strategy
 
-        if confidence < self.confidence_threshold:
+        # Enhanced pattern prediction with anti-pattern detection
+        predicted_move, confidence, strategy = self._enhanced_predict()
+
+        # Use adaptive confidence threshold based on game state
+        adaptive_threshold = self._get_adaptive_threshold()
+        
+        if confidence < adaptive_threshold:
+            # Instead of pure random, use frequency exploitation
+            exploit_move, exploit_confidence = self._exploit_frequency_bias()
+            if exploit_confidence > 0.4:
+                return exploit_move, exploit_confidence, "Frequency exploitation"
+            
             self.randomness_used += 1
             return random.choice(CHOICES), confidence, "Random (low confidence)"
 
@@ -308,6 +342,149 @@ class ImprovedMLPredictor:
 
         return insights
 
+    def _update_streaks(self, move, result):
+        """Track streaks and win/loss patterns."""
+        # Update current move streak
+        if self.current_streak['move'] == move:
+            self.current_streak['count'] += 1
+        else:
+            self.current_streak = {'move': move, 'count': 1}
+            
+        # Update win/loss streak
+        if result:
+            if self.win_loss_streak['type'] == result:
+                self.win_loss_streak['count'] += 1
+            else:
+                self.win_loss_streak = {'type': result, 'count': 1}
+
+    def _update_rotation_patterns(self, move):
+        """Track if player follows rock->paper->scissors rotation patterns."""
+        if len(self.history) >= 3:
+            last_three = self.history[-3:]
+            if (last_three == ['rock', 'paper', 'scissors'] or 
+                last_three == ['scissors', 'rock', 'paper'] or
+                last_three == ['paper', 'scissors', 'rock']):
+                self.rotation_patterns.append(len(self.history))
+
+    def _exploit_human_psychology(self):
+        """Exploit common human psychological patterns."""
+        if len(self.history) < 3:
+            return None, 0.0, ""
+            
+        # Anti-streak: Humans often break streaks after 3+ moves
+        if self.current_streak['count'] >= 3:
+            # Predict they'll switch to the next move in RPS cycle
+            next_in_cycle = {'rock': 'paper', 'paper': 'scissors', 'scissors': 'rock'}
+            predicted = next_in_cycle[self.current_streak['move']]
+            return COUNTER_TO[predicted], 0.75, f"Anti-streak after {self.current_streak['count']} {self.current_streak['move']}"
+            
+        # Gambler's fallacy: After losing, humans often repeat the "winning" move
+        if len(self.results) >= 2 and self.results[-1] == 'lose' and self.results[-2] == 'lose':
+            # They might repeat the move that would have won last round
+            last_ai_move = self.ai_moves[-1] if self.ai_moves else None
+            if last_ai_move:
+                winning_move = COUNTER_TO[last_ai_move]
+                return COUNTER_TO[winning_move], 0.65, "Anti-gambler's fallacy"
+                
+        # Anti-rotation: Detect and counter RPS rotation patterns
+        if len(self.rotation_patterns) >= 2:
+            recent_rotations = [p for p in self.rotation_patterns if len(self.history) - p < 10]
+            if len(recent_rotations) >= 2:
+                # Predict next in rotation
+                current = self.history[-1]
+                next_rotation = {'rock': 'paper', 'paper': 'scissors', 'scissors': 'rock'}
+                predicted = next_rotation[current]
+                return COUNTER_TO[predicted], 0.7, "Anti-rotation pattern"
+                
+        # Win-stay, lose-shift psychology
+        if len(self.results) >= 1:
+            if self.results[-1] == 'win':  # They won, might repeat
+                return COUNTER_TO[self.history[-1]], 0.6, "Counter win-stay tendency"
+            elif self.results[-1] == 'lose':  # They lost, might shift
+                # Predict they'll avoid their last move
+                avoided_move = self.history[-1]
+                likely_moves = [m for m in CHOICES if m != avoided_move]
+                predicted = random.choice(likely_moves)
+                return COUNTER_TO[predicted], 0.55, "Counter lose-shift tendency"
+                
+        return None, 0.0, ""
+
+    def _enhanced_predict(self):
+        """Enhanced prediction with anti-pattern detection."""
+        predictions = []
+        
+        # Standard n-gram predictions
+        for n in sorted(self.n_values, reverse=True):
+            if len(self.history) < n:
+                continue
+                
+            context = tuple(self.history[-n:]) if n > 0 else ()
+            distribution, observations = self._get_next_move_distribution(n, context)
+            
+            if distribution:
+                predicted_move = max(distribution, key=distribution.get)
+                confidence = distribution[predicted_move]
+                
+                # Boost confidence for patterns with clear dominance
+                entropy = -sum(p * np.log2(p) if p > 0 else 0 for p in distribution.values())
+                max_entropy = np.log2(3)  # Maximum entropy for 3 choices
+                clarity_boost = 1 - (entropy / max_entropy)
+                confidence = confidence * (1 + clarity_boost * 0.3)
+                
+                weight = self.ngram_weights.get(n, 1.0) * (min(observations, 15) / 15)
+                
+                predictions.append({
+                    'move': predicted_move,
+                    'confidence': min(confidence, 1.0),
+                    'weight': weight,
+                    'strategy': f"Enhanced {n}-gram pattern" if n > 0 else "Enhanced frequency",
+                    'observations': observations
+                })
+        
+        if not predictions:
+            return random.choice(CHOICES), 0.0, "Random (insufficient data)"
+            
+        best_prediction = max(predictions, key=lambda x: x['confidence'] * x['weight'])
+        return best_prediction['move'], best_prediction['confidence'], best_prediction['strategy']
+
+    def _get_adaptive_threshold(self):
+        """Get adaptive confidence threshold based on game state."""
+        base_threshold = self.confidence_threshold
+        
+        # Lower threshold when we're losing (be more aggressive)
+        if len(self.results) >= 5:
+            recent_results = self.results[-5:]
+            win_rate = recent_results.count('win') / len(recent_results)
+            if win_rate < 0.4:
+                base_threshold *= 0.85
+            elif win_rate > 0.6:
+                base_threshold *= 1.1
+                
+        # Lower threshold early in game when we have less data
+        if len(self.history) < 10:
+            base_threshold *= 0.9
+            
+        return min(max(base_threshold, 0.3), 0.8)
+
+    def _exploit_frequency_bias(self):
+        """Exploit human frequency biases (Rock bias, etc.)."""
+        if len(self.history) < 5:
+            # Exploit rock bias in early game
+            return COUNTER_TO['rock'], 0.5
+            
+        frequencies = self.get_move_frequencies()
+        
+        # Find least used move (humans avoid it due to psychological reasons)
+        least_used = min(frequencies.keys(), key=lambda k: frequencies[k])
+        most_used = max(frequencies.keys(), key=lambda k: frequencies[k])
+        
+        # If there's a strong bias, exploit it
+        if frequencies[most_used] - frequencies[least_used] > 0.15:
+            return COUNTER_TO[most_used], 0.55
+            
+        # Default to countering rock (most common human choice)
+        return COUNTER_TO['rock'], 0.45
+
 
 def get_predictor_path(session_id):
     """Get the path for storing predictor data."""
@@ -392,7 +569,7 @@ def play():
         else:
             scores['tie'] += 1
 
-        predictor.update(user_move)
+        predictor.update(user_move, result, ai_move)
 
         save_predictor(predictor, session['id'])
 
@@ -474,4 +651,4 @@ def cleanup_old_predictors():
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0")
+    app.run(host="0.0.0.0", port=5001)

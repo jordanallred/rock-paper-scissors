@@ -22,8 +22,8 @@ A Flask-based web application that lets users play Rock Paper Scissors against a
 
 ### Requirements
 
-- Python 3.7+
-- Flask
+- Python 3.8+
+- uv (fast Python package manager)
 
 ### Setup
 
@@ -34,26 +34,25 @@ git clone https://github.com/jordanallred/rock-paper-scissors.git
 cd rock-paper-scissors
 ```
 
-2. Create a virtual environment:
+2. Install uv (if not already installed):
 
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-3. Install the required packages:
+3. Install dependencies and create virtual environment:
 
 ```bash
-pip install flask numpy
+uv sync
 ```
 
 4. Run the application:
 
 ```bash
-python app.py
+uv run python app.py
 ```
 
-5. Open your browser and navigate to `http://127.0.0.1:5000/`
+5. Open your browser and navigate to `http://127.0.0.1:5001/`
 
 ## How It Works
 
